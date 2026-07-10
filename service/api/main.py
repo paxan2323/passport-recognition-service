@@ -6,7 +6,7 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from service.core.auth import AuthError
 from service.core.config import get_settings
@@ -65,6 +65,12 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(tasks_router)
     app.include_router(dashboard_router)
+
+    @app.get("/", include_in_schema=False)
+    async def root():
+        if settings.dashboard_enabled:
+            return RedirectResponse(url="/dashboard", status_code=302)
+        return RedirectResponse(url="/docs", status_code=302)
 
     return app
 
