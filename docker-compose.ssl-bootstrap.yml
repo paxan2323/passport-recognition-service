@@ -1,0 +1,10 @@
+# Temporary HTTP-only nginx for initial certbot webroot challenge.
+# Used once by scripts/setup-ssl.sh, then production nginx.prod.conf takes over.
+
+services:
+  nginx:
+    volumes:
+      - ./nginx/nginx.ssl-bootstrap.conf:/etc/nginx/nginx.conf:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    ports:
+      - "80:8080"

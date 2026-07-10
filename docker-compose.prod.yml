@@ -7,12 +7,19 @@ services:
 
   worker:
     volumes:
-      - docreader-models:/tmp/docreader-cache/models
+      - /var/lib/docreader/models:/tmp/docreader-cache/models:ro
+    environment:
+      REGPAGE_WEIGHTS_PATH: /tmp/docreader-cache/models/regpage_obb.pt
     restart: unless-stopped
 
   nginx:
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     ports:
       - "80:8080"
+      - "443:8443"
     restart: unless-stopped
 
   prometheus:
@@ -24,6 +31,3 @@ services:
       - "127.0.0.1:13000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
-
-volumes:
-  docreader-models:

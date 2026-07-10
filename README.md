@@ -172,7 +172,11 @@ See `service/core/config.py` for full list.
 
 ## Deployment (production)
 
-Server path: `/opt/passport-recognition-service`. Public API on port **80**.
+Server path: `/opt/passport-recognition-service`.
+
+- **HTTPS API:** `https://pass.hermes-support.ru`
+- **Dashboard:** `https://pass.hermes-support.ru/dashboard`
+- **Models:** `/var/lib/docreader/models` on host (custom CRNN + regpage detector)
 
 ```bash
 # One-time server bootstrap (Docker + clone)
@@ -180,6 +184,9 @@ curl -fsSL https://raw.githubusercontent.com/paxan2323/passport-recognition-serv
 
 # Set API keys on server
 nano /opt/passport-recognition-service/.env
+
+# SSL (needs A-record pass.hermes-support.ru -> server IP)
+bash /opt/passport-recognition-service/scripts/setup-ssl.sh
 
 # Manual deploy
 /opt/passport-recognition-service/scripts/deploy.sh

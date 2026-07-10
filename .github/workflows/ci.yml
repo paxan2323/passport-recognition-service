@@ -63,12 +63,18 @@ jobs:
             cd "$APP_DIR"
             git fetch origin main
             git reset --hard origin/main
-            chmod +x scripts/deploy.sh
+            chmod +x scripts/deploy.sh scripts/setup-ssl.sh
+            if [ ! -f /etc/letsencrypt/live/pass.hermes-support.ru/fullchain.pem ]; then
+              bash scripts/setup-ssl.sh
+            fi
             bash scripts/deploy.sh
 
       - name: Verify public health
         run: |
           for i in $(seq 1 20); do
+            if curl -fsS "https://pass.hermes-support.ru/health"; then
+              exit 0
+            fi
             if curl -fsS "http://${{ secrets.DEPLOY_HOST }}/health"; then
               exit 0
             fi
