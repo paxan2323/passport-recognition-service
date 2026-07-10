@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     admin_password: str = ""
     admin_api_key: str = ""
     admin_session_ttl_s: int = 60 * 60 * 24 * 7
-    admin_cookie_secure: bool = True
+    admin_cookie_secure: bool = False
 
     # Custom models (optional — see docker-compose models volume)
     regpage_weights_path: str = ""
