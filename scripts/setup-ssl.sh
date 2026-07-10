@@ -17,14 +17,18 @@ if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
   # HTTP-only nginx for ACME webroot
   docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ssl-bootstrap.yml up -d nginx
 
-  certbot certonly --webroot \
+  if ! certbot certonly --webroot \
     -w "$WEBROOT" \
     -d "$DOMAIN" \
     --email "$EMAIL" \
     --agree-tos \
-    --non-interactive
+    --non-interactive; then
+    echo "Certbot failed — add DNS A-record ${DOMAIN} -> server IP, then rerun setup-ssl.sh"
+    docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ssl-bootstrap.yml down nginx
+    exit 1
+  fi
 
-  docker compose -f docker-compose.yml -f docker-compose.prod.yml down nginx
+  docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.ssl-bootstrap.yml down nginx
 fi
 
 echo "==> Certificate ready for ${DOMAIN}"

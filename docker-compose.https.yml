@@ -1,0 +1,11 @@
+# Enable after certbot: scripts/setup-ssl.sh (requires DNS A-record)
+
+services:
+  nginx:
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    ports:
+      - "80:8080"
+      - "443:8443"

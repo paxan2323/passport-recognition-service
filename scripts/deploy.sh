@@ -3,6 +3,11 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-/opt/passport-recognition-service}"
 COMPOSE_FILES="-f docker-compose.yml -f docker-compose.prod.yml"
+DOMAIN="${CERTBOT_DOMAIN:-pass.hermes-support.ru}"
+
+if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+  COMPOSE_FILES="${COMPOSE_FILES} -f docker-compose.https.yml"
+fi
 
 cd "$APP_DIR"
 
