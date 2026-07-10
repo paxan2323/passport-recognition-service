@@ -8,8 +8,11 @@ services:
   worker:
     volumes:
       - /var/lib/docreader/models:/tmp/docreader-cache/models:ro
+      - /var/lib/docreader/easyocr-en:/tmp/docreader-cache/easyocr-en
     environment:
       REGPAGE_WEIGHTS_PATH: /tmp/docreader-cache/models/regpage_obb.pt
+      EASYOCR_MODULE_PATH: /tmp/docreader-cache/easyocr-en
+      EASYOCR_REG_PATH: /tmp/docreader-cache/easyocr-en
     restart: unless-stopped
 
   nginx:

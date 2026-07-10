@@ -16,6 +16,9 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "==> Build and start services"
+if [ ! -f /var/lib/docreader/easyocr-en/model/craft_mlt_25k.pth ]; then
+  bash scripts/prewarm-easyocr.sh /var/lib/docreader/easyocr-en || true
+fi
 docker compose $COMPOSE_FILES up -d --build --remove-orphans --force-recreate
 
 echo "==> Wait for health"
