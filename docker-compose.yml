@@ -23,7 +23,7 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      environment:
+    environment:
       REDIS_URL: redis://redis:6379/0
       PASSPORT_API_KEYS: ${PASSPORT_API_KEYS:-dev-key-001:default}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
