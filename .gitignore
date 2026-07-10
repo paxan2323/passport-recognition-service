@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+training/.venv-gpu/
+.env
+.env.local
+.env.production
+*.log
+output/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Training artifacts and large local datasets
+training/runs/
+training/data/
+training/EasyOCR/
+runs/
+RussianDocsOCR/
+*.pt
+*.pth
+*.onnx
+
+# Model caches (downloaded at runtime)
+.cache/

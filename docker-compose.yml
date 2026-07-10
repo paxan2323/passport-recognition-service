@@ -1,0 +1,119 @@
+services:
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --save ""
+      --appendonly no
+      --maxmemory 256mb
+      --maxmemory-policy volatile-ttl
+    read_only: true
+    tmpfs:
+      - /data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    read_only: true
+    tmpfs:
+      - /tmp
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      PASSPORT_API_KEYS: ${PASSPORT_API_KEYS:-dev-key-001:default}
+      WORKER_METRICS_URL: http://worker:9091/metrics
+      DASHBOARD_ENABLED: "true"
+      LOG_LEVEL: INFO
+      JSON_LOGS: "true"
+      API_SYNC_TIMEOUT_S: "120"
+    depends_on:
+      redis:
+        condition: service_healthy
+    expose:
+      - "8000"
+    volumes:
+      - ./postprocess:/app/postprocess:ro
+      - ./service:/app/service:ro
+    security_opt:
+      - no-new-privileges:true
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    read_only: true
+    tmpfs:
+      - /tmp:exec,size=512m
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      WORKER_ID: worker-1
+      HOME: /tmp
+      DOCREADER_CACHE: /tmp/docreader-cache
+      EASYOCR_MODULE_PATH: /tmp/easyocr
+      EASYOCR_REG_PATH: /tmp/easyocr-reg
+      OMP_NUM_THREADS: "4"
+      LOG_LEVEL: INFO
+      JSON_LOGS: "true"
+      WORKER_TIMEOUT_S: "90"
+      REGPAGE_WEIGHTS_PATH: /tmp/docreader-cache/models/regpage_obb.pt
+    depends_on:
+      redis:
+        condition: service_healthy
+    expose:
+      - "9091"
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    restart: unless-stopped
+    volumes:
+      - ./postprocess:/app/postprocess:ro
+      - ./service:/app/service:ro
+      # Локальные дообученные модели (custom_example.pth, regpage_obb.pt, …)
+      - ${DOCREADER_MODELS_HOST:-C:/Users/piven/.cache/docreader/models}:/tmp/docreader-cache/models:ro
+    security_opt:
+      - no-new-privileges:true
+
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    read_only: true
+    tmpfs:
+      - /var/log/nginx
+      - /var/cache/nginx
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+
+  prometheus:
+    image: prom/prometheus:v2.54.0
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+      - worker
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus

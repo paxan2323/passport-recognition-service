@@ -1,0 +1,9 @@
+# Зависимости для генерации данных и дообучения распознавалки (training/)
+# Ставить поверх основного requirements.txt.
+PyYAML>=6.0
+pandas>=2.0
+natsort>=8.0
+nltk>=3.8
+lmdb>=1.4
+six>=1.16
+# torch/torchvision/opencv/Pillow уже приходят с docreader-ocr

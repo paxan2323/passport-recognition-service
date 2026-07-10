@@ -1,0 +1,36 @@
+{
+  "passport.jpg": {
+    "time_sec": 2.31,
+    "doc_type": "passport",
+    "confidence": 0.897,
+    "fields": {
+      "sex": "МУЖ",
+      "issued_code": "230-002",
+      "passport_num": "03 20 579029",
+      "birthCity": "Г КРАСНОДАР",
+      "surname": "ПИВЕНЬ",
+      "middlename": "АНДРЕЕВИЧ",
+      "issued_date": "07.1",
+      "firstname": "АНДРЕЙ",
+      "issued_by": "Е Д К А КРАСНОДАРСКОЙ ПО РОССИИ КРАЮ",
+      "dateOfBirth": "25 ЕВИЧ 200 06"
+    }
+  },
+  "annotated": {
+    "time_sec": 1.77,
+    "doc_type": "passport",
+    "confidence": 0.894,
+    "fields": {
+      "sex": "МУЖ",
+      "issued_date": "08.07.2020",
+      "passport_num": "03 20 579029",
+      "middlename": "АНДРЕЙ",
+      "issued_by": "ГУ МВД РОССИИ ПО КРАСНОДАРСКОМУ",
+      "dateOfBirth": "25 06 2000",
+      "firstname": "АНДРЕЙ",
+      "birthCity": "Г.А КРАСНОДАР",
+      "issued_code": "КРАЮ",
+      "surname": "99994а 0022"
+    }
+  }
+}

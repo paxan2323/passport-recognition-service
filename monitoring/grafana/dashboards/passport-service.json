@@ -1,0 +1,70 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "graphTooltip": 0,
+  "panels": [
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "fieldConfig": {"defaults": {"unit": "reqps"}},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "id": 1,
+      "targets": [
+        {
+          "expr": "sum(rate(passport_requests_total[5m])) by (status)",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "title": "Request rate by status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "id": 2,
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(passport_processing_duration_seconds_bucket{phase=\"total\"}[5m])) by (le))",
+          "legendFormat": "p95 total"
+        }
+      ],
+      "title": "Processing latency p95",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "id": 3,
+      "targets": [{"expr": "passport_queue_depth", "legendFormat": "depth"}],
+      "title": "Queue depth",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+      "id": 4,
+      "targets": [{"expr": "passport_workers_busy", "legendFormat": "busy"}],
+      "title": "Workers busy",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "Prometheus"},
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+      "id": 5,
+      "targets": [
+        {
+          "expr": "sum(rate(passport_rejections_total[5m])) by (reason)",
+          "legendFormat": "{{reason}}"
+        }
+      ],
+      "title": "Rejections by reason",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["passport", "ocr"],
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "Passport Recognition Service",
+  "uid": "passport-ocr",
+  "version": 1
+}

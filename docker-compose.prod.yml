@@ -1,0 +1,29 @@
+# Production overrides — use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+services:
+  api:
+    volumes: []
+    restart: unless-stopped
+
+  worker:
+    volumes:
+      - docreader-models:/tmp/docreader-cache/models
+    restart: unless-stopped
+
+  nginx:
+    ports:
+      - "80:8080"
+    restart: unless-stopped
+
+  prometheus:
+    ports:
+      - "127.0.0.1:9090:9090"
+
+  grafana:
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+
+volumes:
+  docreader-models:

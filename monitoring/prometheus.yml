@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: passport-api
+    static_configs:
+      - targets: ["api:8000"]
+    metrics_path: /metrics
+
+  - job_name: passport-worker
+    static_configs:
+      - targets: ["worker:9091"]
+    metrics_path: /metrics

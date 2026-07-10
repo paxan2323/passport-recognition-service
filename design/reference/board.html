@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Референс-борд · приложение исполнителя v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  :root{
+    --bg:#F4F5F9; --surface:#FFFFFF; --surface2:#F0F1F6;
+    --border:rgba(23,25,35,.06); --ink:#16181D; --muted:#697086; --faint:#9AA1B2; --past:#B6BBC8;
+    --brand:#4F46E5; --brand-tonal:#EDECFC; --brand-deep:#3730A3;
+    --money:#0F766E; --money-bg:#E6F2F0;
+    --warn:#B45309; --warn-bg:#FEF3C7; --danger:#DC2626; --danger-bg:#FDECEC;
+    --sh:0 1px 2px rgba(23,25,35,.04),0 4px 12px rgba(23,25,35,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#E7E9F0;font-family:Inter,system-ui,sans-serif;color:var(--ink);padding:24px}
+  .board{display:grid;grid-template-columns:repeat(3,360px);gap:24px;justify-content:start}
+  .cell .cap{font-size:13px;color:#5F6575;margin-top:10px;text-align:center;font-weight:500}
+  .phone{width:360px;height:740px;background:var(--bg);border-radius:28px;overflow:hidden;
+    display:flex;flex-direction:column;border:1px solid rgba(23,25,35,.10);box-shadow:0 8px 28px rgba(23,25,35,.10)}
+  .body{flex:1;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+  .num{font-variant-numeric:tabular-nums}
+  .cap13{font-size:13px;color:var(--muted)}
+  .h28{font-size:28px;line-height:34px;font-weight:600}
+  .h17{font-size:17px;line-height:24px;font-weight:600}
+  .b15{font-size:15px;line-height:22px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--sh)}
+  .pad{padding:16px}
+  .row{display:flex;align-items:center;gap:12px}
+  .chip40{width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;flex:none}
+  .chip40 svg{width:20px;height:20px}
+  .grow{flex:1;min-width:0}
+  .btn{height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:600;width:100%}
+  .btn.brand{background:var(--brand);color:#fff}
+  .btn.ghost{background:var(--surface2);color:var(--ink);height:44px;font-weight:500}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;
+    border-radius:999px;padding:4px 10px}
+  .dot{width:6px;height:6px;border-radius:999px}
+  .tabbar{background:var(--surface);border-top:1px solid var(--border);display:flex;
+    padding:8px 8px 14px}
+  .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--faint)}
+  .tab svg{width:24px;height:24px}
+  .tab.on{color:var(--brand);font-weight:600}
+  .appbar{display:flex;align-items:flex-start;justify-content:space-between}
+  .bell{width:40px;height:40px;border-radius:999px;background:var(--surface2);display:flex;
+    align-items:center;justify-content:center;position:relative}
+  .bell svg{width:20px;height:20px}
+  .bell .b{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:999px;
+    background:var(--danger);border:2px solid var(--surface2)}
+  .hr{height:1px;background:var(--border)}
+  .ill{width:96px;height:96px;margin:0 auto}
+</style>
+</head>
+<body>
+<div class="board">
+
+<!-- ============ 01 СЕГОДНЯ · ПУСТОЙ ТЕНАНТ ============ -->
+<div class="cell"><div class="phone">
+  <div class="body">
+    <div class="appbar">
+      <div>
+        <div class="cap13">воскресенье, 5 июля</div>
+        <div style="font-size:22px;line-height:28px;font-weight:600">Доброе утро, Андрей</div>
+      </div>
+      <div class="bell"><i data-lucide="bell" style="color:#4B5163"></i><div class="b"></div></div>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div style="background:var(--brand);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:15px;font-weight:600">До первой смены</span>
+        <span class="num" style="font-size:13px;background:rgba(255,255,255,.18);border-radius:999px;padding:3px 10px">1 из 3</span>
+      </div>
+      <div class="pad" style="display:flex;flex-direction:column;gap:14px">
+        <div class="row">
+          <div class="chip40" style="background:var(--money-bg)"><i data-lucide="check" style="color:var(--money)"></i></div>
+          <div class="grow"><div class="b15" style="color:var(--faint);text-decoration:line-through">Включите уведомления</div></div>
+        </div>
+        <div class="row">
+          <div class="chip40" style="background:var(--warn-bg)"><i data-lucide="id-card" style="color:var(--warn)"></i></div>
+          <div class="grow">
+            <div class="b15" style="font-weight:500">Загрузите паспорт</div>
+            <div class="cap13">2 минуты, камера сделает всё сама</div>
+          </div>
+          <i data-lucide="chevron-right" style="width:18px;color:var(--faint)"></i>
+        </div>
+        <div class="row">
+          <div class="chip40" style="background:var(--brand-tonal)"><i data-lucide="calendar-clock" style="color:var(--brand)"></i></div>
+          <div class="grow">
+            <div class="b15" style="font-weight:500">Дождитесь публикации смен</div>
+            <div class="cap13">менеджер публикует график заранее</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad" style="display:flex;flex-direction:column;gap:14px">
+      <div class="h17">Как это работает</div>
+      <div class="row">
+        <div class="chip40" style="background:var(--brand-tonal)"><i data-lucide="calendar-check" style="color:var(--brand)"></i></div>
+        <div class="b15">Забронируйте смену</div>
+      </div>
+      <div class="row">
+        <div class="chip40" style="background:var(--warn-bg)"><i data-lucide="map-pin" style="color:var(--warn)"></i></div>
+        <div class="b15">Отметьтесь на точке</div>
+      </div>
+      <div class="row">
+        <div class="chip40" style="background:var(--money-bg)"><i data-lucide="wallet" style="color:var(--money)"></i></div>
+        <div class="b15">Получите выплату</div>
+      </div>
+    </div>
+    <div class="card pad row">
+      <div class="chip40" style="background:var(--brand-tonal);font-weight:600;color:var(--brand-deep);font-size:14px">МК</div>
+      <div class="grow">
+        <div class="b15" style="font-weight:500;white-space:nowrap">Мария</div>
+        <div class="cap13" style="white-space:nowrap">диспетчер · до 20:00</div>
+      </div>
+      <div class="chip40" style="background:var(--surface2)"><i data-lucide="message-circle" style="color:var(--ink)"></i></div>
+      <div class="chip40" style="background:var(--surface2)"><i data-lucide="phone" style="color:var(--ink)"></i></div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab on"><i data-lucide="home"></i>Сегодня</div>
+    <div class="tab"><i data-lucide="calendar"></i>Смены</div>
+    <div class="tab"><i data-lucide="wallet"></i>Деньги</div>
+    <div class="tab"><i data-lucide="user"></i>Профиль</div>
+  </div>
+</div><div class="cap">01 · Сегодня — пустой тенант (чек-лист вместо пустоты)</div></div>
+
+<!-- ============ 02 СЕГОДНЯ · С ДАННЫМИ ============ -->
+<div class="cell"><div class="phone">
+  <div class="body">
+    <div class="appbar">
+      <div>
+        <div class="cap13">пятница, 4 июля</div>
+        <div style="font-size:22px;line-height:28px;font-weight:600">Доброе утро, Андрей</div>
+      </div>
+      <div class="bell"><i data-lucide="bell" style="color:#4B5163"></i><div class="b"></div></div>
+    </div>
+    <div style="background:var(--brand);border-radius:20px;padding:16px;color:#fff;box-shadow:var(--sh)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#C9C7F8">Ближайшая смена</span>
+        <span class="pill num" style="background:#fff;color:var(--brand-deep)">через 45 мин</span>
+      </div>
+      <div style="font-size:17px;font-weight:600;margin-top:8px">Магазин · Тверская, 12</div>
+      <div class="num" style="font-size:13px;color:#C9C7F8;margin-top:2px">10:00–19:00 · 9 ч</div>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <div class="btn" style="background:#fff;color:var(--brand-deep);flex:1;height:52px">Я на месте</div>
+        <div class="chip40" style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16)"><i data-lucide="map-pin" style="color:#fff"></i></div>
+        <div class="chip40" style="width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.16)"><i data-lucide="message-circle" style="color:#fff"></i></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div class="card pad grow" style="padding:12px 16px">
+        <div class="cap13">Неделя</div>
+        <div class="num" style="font-size:22px;font-weight:600;color:var(--money)">12 400 ₽</div>
+      </div>
+      <div class="card pad grow" style="padding:12px 16px">
+        <div class="cap13">Смен</div>
+        <div class="num" style="font-size:22px;font-weight:600">4 из 5</div>
+      </div>
+    </div>
+    <div class="card pad row" style="background:var(--warn-bg);border-color:transparent">
+      <div class="chip40" style="background:rgba(255,255,255,.6)"><i data-lucide="id-card" style="color:var(--warn)"></i></div>
+      <div class="grow">
+        <div class="b15" style="font-weight:500;color:#78350F">Паспорт не загружен</div>
+        <div class="cap13" style="color:var(--warn)">загрузить — 2 минуты</div>
+      </div>
+      <i data-lucide="chevron-right" style="width:18px;color:var(--warn)"></i>
+    </div>
+    <div style="border:1.5px dashed #C6CBDB;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+      <div class="grow">
+        <div class="cap13">Свободная смена · завтра</div>
+        <div class="b15" style="font-weight:500">12:00–18:00 · Склад Юг</div>
+      </div>
+      <span class="pill num" style="background:var(--brand-tonal);color:var(--brand-deep);font-weight:600">Забрать</span>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab on"><i data-lucide="home"></i>Сегодня</div>
+    <div class="tab"><i data-lucide="calendar"></i>Смены</div>
+    <div class="tab"><i data-lucide="wallet"></i>Деньги</div>
+    <div class="tab"><i data-lucide="user"></i>Профиль</div>
+  </div>
+</div><div class="cap">02 · Сегодня — hero-карточка со state-кнопкой</div></div>
+
+<!-- ============ 03 СМЕНЫ · ПУСТАЯ НЕДЕЛЯ ============ -->
+<div class="cell"><div class="phone">
+  <div class="body">
+    <div>
+      <div class="cap13">июль</div>
+      <div class="h28">Смены</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px">
+        <div style="font-size:11px;color:var(--past)">П</div><div class="num" style="font-size:17px;color:var(--past)">29</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px;position:relative">
+        <div style="font-size:11px;color:var(--past)">В</div><div class="num" style="font-size:17px;color:var(--past)">30</div>
+        <div class="dot" style="width:4px;height:4px;background:var(--past);position:absolute;left:50%;transform:translateX(-50%);bottom:5px"></div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px">
+        <div style="font-size:11px;color:var(--past)">С</div><div class="num" style="font-size:17px;color:var(--past)">1</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px">
+        <div style="font-size:11px;color:var(--past)">Ч</div><div class="num" style="font-size:17px;color:var(--past)">2</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px">
+        <div style="font-size:11px;color:var(--past)">П</div><div class="num" style="font-size:17px;color:var(--past)">3</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px">
+        <div style="font-size:11px;color:var(--muted)">С</div><div class="num" style="font-size:17px">4</div>
+      </div>
+      <div style="flex:1;text-align:center;padding:8px 0 10px;border-radius:14px;background:var(--brand);color:#fff">
+        <div style="font-size:11px;color:#C9C7F8">В</div><div class="num" style="font-size:17px;font-weight:600">5</div>
+      </div>
+    </div>
+    <div class="card pad" style="text-align:center;padding:24px 20px">
+      <svg class="ill" viewBox="0 0 96 96" fill="none">
+        <rect x="14" y="22" width="52" height="50" rx="10" fill="#EDECFC"/>
+        <rect x="14" y="22" width="52" height="50" rx="10" stroke="#16181D" stroke-width="2.2"/>
+        <path d="M14 38h52" stroke="#16181D" stroke-width="2.2"/>
+        <path d="M28 16v10M52 16v10" stroke="#16181D" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="64" cy="60" r="14" fill="#fff" stroke="#16181D" stroke-width="2.2"/>
+        <path d="m74 70 8 8" stroke="#16181D" stroke-width="2.6" stroke-linecap="round"/>
+        <circle cx="30" cy="48" r="2.6" fill="#4F46E5"/><circle cx="42" cy="48" r="2.6" fill="#4F46E5"/>
+      </svg>
+      <div class="h17" style="margin-top:12px">На этой неделе смен пока нет</div>
+      <div class="cap13" style="margin-top:4px">Пришлём пуш, как только менеджер опубликует график</div>
+      <div class="btn brand" style="margin-top:16px">Напомнить о новых сменах</div>
+    </div>
+    <div style="background:var(--brand-tonal);border-radius:14px;padding:12px 16px;display:flex;gap:10px;align-items:center">
+      <i data-lucide="info" style="width:18px;color:var(--brand-deep);flex:none"></i>
+      <div style="font-size:13px;line-height:18px;color:var(--brand-deep)">Смены на следующую неделю обычно появляются к пятнице</div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><i data-lucide="home"></i>Сегодня</div>
+    <div class="tab on"><i data-lucide="calendar"></i>Смены</div>
+    <div class="tab"><i data-lucide="wallet"></i>Деньги</div>
+    <div class="tab"><i data-lucide="user"></i>Профиль</div>
+  </div>
+</div><div class="cap">03 · Смены — полоска недели по спеке + полезный CTA</div></div>
+
+<!-- ============ 04 ДЕНЬГИ · ПУСТОЙ МЕСЯЦ ============ -->
+<div class="cell"><div class="phone">
+  <div class="body">
+    <div class="h28">Деньги</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+      <div class="chip40" style="width:44px;height:40px;border-radius:12px;background:var(--surface2)"><i data-lucide="chevron-left" style="width:18px"></i></div>
+      <div style="font-size:17px;font-weight:600">Июль 2026</div>
+      <div class="chip40" style="width:44px;height:40px;border-radius:12px;background:var(--surface2);opacity:.35"><i data-lucide="chevron-right" style="width:18px"></i></div>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div style="background:var(--money);color:#fff;padding:12px 16px;font-size:15px;font-weight:600">Как считается оплата</div>
+      <div class="pad" style="display:flex;flex-direction:column;gap:14px">
+        <div class="row">
+          <div class="chip40" style="background:var(--money-bg)"><i data-lucide="clock" style="color:var(--money)"></i></div>
+          <div class="b15">Ставка × отработанные часы</div>
+        </div>
+        <div class="row">
+          <div class="chip40" style="background:var(--danger-bg)"><i data-lucide="minus" style="color:var(--danger)"></i></div>
+          <div class="b15">Минус штрафы — их можно оспорить</div>
+        </div>
+        <div class="row">
+          <div class="chip40" style="background:var(--brand-tonal)"><i data-lucide="plus" style="color:var(--brand)"></i></div>
+          <div class="b15">Плюс компенсации расходов</div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad" style="text-align:center;padding:24px 20px">
+      <svg class="ill" viewBox="0 0 96 96" fill="none">
+        <rect x="16" y="34" width="56" height="40" rx="10" fill="#E6F2F0"/>
+        <rect x="16" y="34" width="56" height="40" rx="10" stroke="#16181D" stroke-width="2.2"/>
+        <path d="M58 50h14v12H58a6 6 0 0 1 0-12Z" fill="#fff" stroke="#16181D" stroke-width="2.2"/>
+        <circle cx="62" cy="56" r="2.4" fill="#0F766E"/>
+        <path d="M40 34c0-8 4-16 8-18 1 6 6 8 6 14" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M44 34c-1-5-5-8-9-9 0 5 2 8 5 9" stroke="#0F766E" stroke-width="2.2" stroke-linecap="round"/>
+      </svg>
+      <div class="h17" style="margin-top:12px">В июле начислений не было</div>
+      <div class="cap13" style="margin-top:4px">Появятся после первой закрытой смены</div>
+      <div class="btn ghost" style="margin-top:16px">К сменам</div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><i data-lucide="home"></i>Сегодня</div>
+    <div class="tab"><i data-lucide="calendar"></i>Смены</div>
+    <div class="tab on"><i data-lucide="wallet"></i>Деньги</div>
+    <div class="tab"><i data-lucide="user"></i>Профиль</div>
+  </div>
+</div><div class="cap">04 · Деньги — пустой месяц: объяснение выше извинения</div></div>
+
+<!-- ============ 05 ДЕНЬГИ · С ДАННЫМИ ============ -->
+<div class="cell"><div class="phone">
+  <div class="body">
+    <div class="h28">Деньги</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px">
+      <div class="chip40" style="width:44px;height:40px;border-radius:12px;background:var(--surface2)"><i data-lucide="chevron-left" style="width:18px"></i></div>
+      <div style="font-size:17px;font-weight:600">Июль 2026</div>
+      <div class="chip40" style="width:44px;height:40px;border-radius:12px;background:var(--surface2);opacity:.35"><i data-lucide="chevron-right" style="width:18px"></i></div>
+    </div>
+    <div style="background:var(--money);border-radius:20px;padding:16px;color:#fff;box-shadow:var(--sh)">
+      <div style="font-size:13px;color:#BEE3DD">К выплате</div>
+      <div class="num" style="font-size:32px;line-height:40px;font-weight:600">8 450 ₽</div>
+      <div class="num" style="font-size:13px;color:#BEE3DD;margin-top:2px">за 1–4 июля · 3 смены</div>
+    </div>
+    <div class="card pad" style="padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span class="cap13">Эта неделя</span>
+        <span class="num" style="font-size:15px;font-weight:600;color:var(--money)">12 400 ₽</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:48px;margin-top:10px">
+        <div style="flex:1;height:55%;background:#DFE3F0;border-radius:5px"></div>
+        <div style="flex:1;height:78%;background:#DFE3F0;border-radius:5px"></div>
+        <div style="flex:1;height:42%;background:#DFE3F0;border-radius:5px"></div>
+        <div style="flex:1;height:92%;background:var(--money);border-radius:5px"></div>
+        <div style="flex:1;height:12%;background:#DFE3F0;border-radius:5px"></div>
+        <div style="flex:1;height:60%;background:transparent;border:1.5px dashed #C6CBDB;border-radius:5px"></div>
+        <div style="flex:1;height:30%;background:transparent;border:1.5px dashed #C6CBDB;border-radius:5px"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="pad row" style="padding:14px 16px">
+        <div class="grow">
+          <div class="b15" style="font-weight:500">Чт, 3 июля · Тверская, 12</div>
+          <div class="cap13">9 ч · закрыта</div>
+        </div>
+        <span class="num" style="font-size:15px;font-weight:600;color:var(--money)">+3 240 ₽</span>
+      </div>
+      <div class="hr" style="margin:0 16px"></div>
+      <div class="pad row" style="padding:14px 16px">
+        <div class="grow">
+          <div class="b15" style="font-weight:500">Ср, 2 июля · Склад Юг</div>
+          <div class="cap13" style="color:var(--danger)">штраф · опоздание 20 мин</div>
+        </div>
+        <div style="text-align:right">
+          <div class="num" style="font-size:15px;font-weight:600;color:var(--danger)">−500 ₽</div>
+          <div style="font-size:13px;color:var(--brand);font-weight:500">Оспорить</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><i data-lucide="home"></i>Сегодня</div>
+    <div class="tab"><i data-lucide="calendar"></i>Смены</div>
+    <div class="tab on"><i data-lucide="wallet"></i>Деньги</div>
+    <div class="tab"><i data-lucide="user"></i>Профиль</div>
+  </div>
+</div><div class="cap">05 · Деньги — hero, прогноз пунктиром, штраф со спором</div></div>
+
+<!-- ============ 06 LIVE-РЕЖИМ ============ -->
+<div class="cell"><div class="phone" style="background:#12141F">
+  <div class="body">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#9AA1C2">
+      <span style="display:flex;align-items:center;gap:4px"><i data-lucide="chevron-down" style="width:16px"></i>Свернуть</span>
+      <span style="display:flex;align-items:center;gap:6px"><span class="dot" style="background:#34D399;width:7px;height:7px"></span>Вы на смене</span>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <div class="num" style="font-size:44px;line-height:52px;font-weight:600;color:#fff">3:12:45</div>
+      <div class="num" style="font-size:13px;color:#9AA1C2;margin-top:4px">из 9 ч · Магазин · Тверская, 12</div>
+      <div style="height:6px;border-radius:999px;background:#262B45;margin:16px 8px 0">
+        <div style="width:36%;height:6px;border-radius:999px;background:#34D399"></div>
+      </div>
+    </div>
+    <div style="background:#1D2237;border-radius:16px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#9AA1C2">Заработано</span>
+      <span class="num" style="font-size:20px;font-weight:600;color:#34D399">≈ 1 280 ₽</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:#1D2237;border-radius:14px;padding:12px 4px;text-align:center;color:#C6CBE4;font-size:12px">
+        <i data-lucide="coffee" style="width:18px;display:block;margin:0 auto 4px"></i>Перерыв</div>
+      <div style="background:#1D2237;border-radius:14px;padding:12px 4px;text-align:center;color:#C6CBE4;font-size:12px">
+        <i data-lucide="list-checks" style="width:18px;display:block;margin:0 auto 4px"></i>Задания</div>
+      <div style="background:#1D2237;border-radius:14px;padding:12px 4px;text-align:center;color:#C6CBE4;font-size:12px">
+        <i data-lucide="message-circle" style="width:18px;display:block;margin:0 auto 4px"></i>Чат</div>
+    </div>
+    <div style="background:#2C1B22;border-radius:14px;padding:12px 16px;display:flex;gap:10px;align-items:center">
+      <i data-lucide="triangle-alert" style="width:17px;color:#F0999B;flex:none"></i>
+      <span style="font-size:13px;color:#F0B6B8">Проблема на точке? Сообщить</span>
+    </div>
+    <div style="margin-top:auto">
+      <div style="background:#fff;border-radius:999px;padding:6px;display:flex;align-items:center;gap:12px">
+        <div class="chip40" style="width:44px;height:44px;background:var(--brand)"><i data-lucide="chevrons-right" style="color:#fff"></i></div>
+        <span style="font-size:15px;font-weight:600;color:#3F4665">Проведите — отметить уход</span>
+      </div>
+    </div>
+  </div>
+</div><div class="cap">06 · Live-режим активной смены (всегда тёмный)</div></div>
+
+</div>
+<script>
+lucide.createIcons();
+const only = new URLSearchParams(location.search).get('only');
+if (only) {
+  document.body.style.padding = '0';
+  document.body.style.background = 'transparent';
+  const cells = [...document.querySelectorAll('.cell')];
+  cells.forEach((c, i) => { if (i !== +only - 1) c.remove(); });
+  const cell = document.querySelector('.cell');
+  cell.querySelector('.cap').remove();
+  const ph = cell.querySelector('.phone');
+  ph.style.borderRadius = '0'; ph.style.border = 'none'; ph.style.boxShadow = 'none';
+  document.querySelector('.board').style.cssText = 'display:block';
+}
+</script>
+</body>
+</html>

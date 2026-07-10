@@ -1,0 +1,44 @@
+# Конфиг дообучения кастомной сети docreader (None-VGG-BiLSTM-CTC).
+# Алфавит (character) подставляется раннером из custom_example.yaml —
+# порядок символов должен в точности совпасть с предобученной головой.
+
+experiment_name: 'ru_passport'
+manualSeed: 1111
+workers: 0            # Windows: без воркеров, раннер убирает prefetch_factor
+batch_size: 32
+num_iter: 8000
+valInterval: 2000
+FT: True              # дообучение с custom_example.pth
+optim: False          # Adadelta
+lr: 1.0
+beta1: 0.9
+rho: 0.95
+eps: 0.00000001
+grad_clip: 5
+
+# Данные (пути подставляет раннер: all_data + ru_train/ru_val)
+select_data: 'ru_train'
+batch_ratio: '1'
+total_data_usage_ratio: 1.0
+batch_max_length: 75
+imgH: 64
+imgW: 600
+rgb: False
+sensitive: True
+PAD: True
+contrast_adjust: 0.0
+data_filtering_off: False
+
+# Архитектура — как у custom_example
+Transformation: 'None'
+FeatureExtraction: 'VGG'
+SequenceModeling: 'BiLSTM'
+Prediction: 'CTC'
+num_fiducial: 20
+input_channel: 1
+output_channel: 256
+hidden_size: 256
+decode: 'greedy'
+new_prediction: False
+freeze_FeatureFxtraction: False
+freeze_SequenceModeling: False

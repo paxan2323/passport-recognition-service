@@ -1,0 +1,31 @@
+{
+  "passport.jpg": {
+    "time_sec": 5.94,
+    "fields": {
+      "Issue_organization_ru": "ГУ МВД РОССИИ ПО КРАСНОДАРСКОМУ КРАЮ",
+      "Licence_number": "03 :20 579029",
+      "Issue_organisation_code": "230-002",
+      "Issue_date": "108.07.2020",
+      "Last_name_ru": "ПИВЕНЬ",
+      "First_name_ru": "АНДРЕЙ",
+      "Middle_name_ru": "АНДРЕЕВИЧ",
+      "Birth_date": "25.06.2000",
+      "Sex_ru": "М",
+      "Birth_place_ru": "Г КРАСНОДАР"
+    }
+  },
+  "annotated": {
+    "time_sec": 0.77,
+    "fields": {
+      "Issue_organization_ru": "КРАЮ",
+      "Issue_date": "08.07.2020",
+      "Last_name_ru": "ПИВЕНЬ",
+      "Licence_number": "08 20 579029",
+      "First_name_ru": "АНДРЕЙ",
+      "Middle_name_ru": "АНДРЕЕВИЧ",
+      "Birth_date": "25.06.2000",
+      "Sex_ru": "М",
+      "Birth_place_ru": "Г КРАСНОДАР"
+    }
+  }
+}

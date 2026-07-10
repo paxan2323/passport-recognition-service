@@ -1,0 +1,27 @@
+FROM python:3.11-slim-bookworm AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    OMP_NUM_THREADS=4
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 libglib2.0-0 libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt requirements-service.txt ./
+COPY postprocess/ postprocess/
+RUN pip install -r requirements-service.txt
+
+COPY service/ service/
+
+# Model cache on tmpfs at runtime (writable under read_only rootfs)
+ENV DOCREADER_CACHE=/tmp/docreader-cache
+RUN mkdir -p /tmp/docreader-cache && chmod 777 /tmp/docreader-cache
+
+RUN useradd -m -u 1000 appuser
+USER appuser
+
+CMD ["python", "-m", "service.worker.main"]
