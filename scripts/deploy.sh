@@ -11,7 +11,7 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "==> Build and start services"
-docker compose $COMPOSE_FILES up -d --build --remove-orphans
+docker compose $COMPOSE_FILES up -d --build --remove-orphans --force-recreate
 
 echo "==> Wait for health"
 for i in $(seq 1 30); do
