@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     dashboard_enabled: bool = True
     worker_metrics_url: str = "http://worker:9091/metrics"
 
+    # Admin dashboard (personal use)
+    admin_password: str = ""
+    admin_api_key: str = ""
+    admin_session_ttl_s: int = 60 * 60 * 24 * 7
+    admin_cookie_secure: bool = True
+
     # Custom models (optional — see docker-compose models volume)
     regpage_weights_path: str = ""
 

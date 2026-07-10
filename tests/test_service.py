@@ -171,6 +171,7 @@ class TestApiEndpoints:
     def client(self, monkeypatch):
         monkeypatch.setenv("PASSPORT_API_KEYS", "test-key:client1")
         monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/15")
+        monkeypatch.setenv("ADMIN_PASSWORD", "test-admin-pass")
 
         from service.core.config import get_settings
 
@@ -201,6 +202,10 @@ class TestApiEndpoints:
 
     def test_dashboard_stats(self, client, monkeypatch):
         from service.api.routes import dashboard as dash_mod
+        from service.core.config import get_settings
+
+        monkeypatch.setenv("ADMIN_PASSWORD", "test-admin-pass")
+        get_settings.cache_clear()
 
         monkeypatch.setattr(
             dash_mod,
@@ -208,8 +213,31 @@ class TestApiEndpoints:
             lambda queue=None: {"system": {"ready": True}, "queue": {"depth": 0}},
         )
         r = client.get("/api/dashboard/stats")
+        assert r.status_code == 401
+
+        login = client.post("/api/admin/login", json={"password": "test-admin-pass"})
+        assert login.status_code == 200
+        r = client.get("/api/dashboard/stats")
         assert r.status_code == 200
         assert r.json()["system"]["ready"] is True
+
+    def test_admin_login_and_regenerate(self, client, monkeypatch):
+        from service.core.auth import verify_api_key
+
+        bad = client.post("/api/admin/login", json={"password": "wrong"})
+        assert bad.status_code == 401
+
+        ok = client.post("/api/admin/login", json={"password": "test-admin-pass"})
+        assert ok.status_code == 200
+        assert ok.json()["api_key"]
+
+        regen = client.post("/api/admin/regenerate-api-key")
+        assert regen.status_code == 200
+        new_key = regen.json()["api_key"]
+        assert new_key != ok.json()["api_key"]
+
+        ctx = verify_api_key(new_key)
+        assert ctx.client_id == "admin"
 
 
 class TestStatsParser:

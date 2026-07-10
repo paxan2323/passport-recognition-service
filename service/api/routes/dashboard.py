@@ -7,6 +7,8 @@ from pathlib import Path
 from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 
+from service.core.admin_auth import require_admin_session
+
 from service.core.config import get_settings
 from service.core.queue import TaskQueue
 from service.core.stats import collect_stats
@@ -37,7 +39,10 @@ async def dashboard_page():
 
 
 @router.get("/api/dashboard/stats")
-async def dashboard_stats(queue: TaskQueue = Depends(get_queue)):
+async def dashboard_stats(
+    queue: TaskQueue = Depends(get_queue),
+    _session: str = Depends(require_admin_session),
+):
     if not _dashboard_enabled():
         return JSONResponse({"error": "disabled"}, status_code=404)
     return collect_stats(queue)

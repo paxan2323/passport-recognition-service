@@ -27,11 +27,25 @@ def _mask_key(key: str) -> str:
 def verify_api_key(raw_key: Optional[str]) -> AuthContext:
     if not raw_key:
         raise AuthError(UNAUTHORIZED)
-    keys = parse_api_keys()
+    keys = get_all_api_keys()
     client_id = keys.get(raw_key)
     if client_id is None:
         raise AuthError(UNAUTHORIZED)
     return AuthContext(api_key=raw_key, client_id=client_id, api_key_id=_mask_key(raw_key))
+
+
+def get_all_api_keys() -> dict[str, str]:
+    """Env keys + active admin key from Redis."""
+    keys = parse_api_keys()
+    try:
+        from service.core.admin_store import get_admin_api_key
+
+        admin_key = get_admin_api_key()
+        if admin_key:
+            keys[admin_key] = "admin"
+    except Exception:
+        pass
+    return keys
 
 
 class AuthError(Exception):

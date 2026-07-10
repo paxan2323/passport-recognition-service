@@ -103,6 +103,21 @@
     }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); margin-top: 0.5rem; }
+    button.danger { background: var(--err); margin-top: 0.5rem; }
+    .login-screen {
+      max-width: 400px;
+      margin: 4rem auto;
+      padding: 0 1.5rem;
+    }
+    .key-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    .key-row input { margin-bottom: 0; flex: 1; font-family: monospace; font-size: 0.8rem; }
+    .key-row button { width: auto; padding: 0.5rem 0.75rem; white-space: nowrap; }
+    .hidden { display: none !important; }
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -178,9 +193,22 @@
   </style>
 </head>
 <body>
+  <div id="loginScreen" class="login-screen hidden">
+    <div class="card">
+      <h2 style="text-transform:none;color:var(--text);font-size:1.1rem">Вход в панель</h2>
+      <p style="font-size:0.85rem;color:var(--muted);margin:0 0 1rem">Личный доступ администратора</p>
+      <label for="adminPassword">Пароль</label>
+      <input type="password" id="adminPassword" autocomplete="current-password" />
+      <button id="btnLogin">Войти</button>
+      <div id="loginError" class="error-box" style="display:none;margin-top:1rem"></div>
+    </div>
+  </div>
+
+  <div id="appShell" class="hidden">
   <header>
     <h1>Распознавание паспортов</h1>
     <div>
+      <button type="button" class="secondary" id="btnLogout" style="width:auto;padding:0.4rem 0.8rem;margin-right:0.5rem">Выйти</button>
       <span id="statusBadge" class="badge">загрузка…</span>
       <span class="badge" id="updatedAt">—</span>
     </div>
@@ -190,8 +218,13 @@
     <section>
       <div class="card">
         <h2>Загрузка</h2>
-        <label for="apiKey">API Key (X-API-Key)</label>
-        <input type="password" id="apiKey" placeholder="dev-key-001" autocomplete="off" />
+        <label>API-ключ (автоматически)</label>
+        <div class="key-row">
+          <input type="text" id="apiKeyDisplay" readonly />
+          <button type="button" class="secondary" id="btnCopyKey" title="Копировать">Копировать</button>
+        </div>
+        <button type="button" class="danger" id="btnRegenKey">Перегенерировать ключ</button>
+        <p style="font-size:0.75rem;color:var(--muted);margin:0.5rem 0 1rem">Старый ключ перестанет работать сразу после перегенерации.</p>
 
         <div class="dropzone" id="dropzone">
           <p>Перетащите фото паспорта или нажмите для выбора</p>
@@ -263,6 +296,7 @@
       </div>
     </aside>
   </main>
+  </div>
 
   <script>
     const FIELD_LABELS = {
@@ -280,7 +314,13 @@
       registration_address: "Адрес регистрации",
     };
 
-    const apiKeyEl = document.getElementById("apiKey");
+    const apiKeyDisplay = document.getElementById("apiKeyDisplay");
+    const loginScreen = document.getElementById("loginScreen");
+    const appShell = document.getElementById("appShell");
+    const adminPassword = document.getElementById("adminPassword");
+    const btnLogin = document.getElementById("btnLogin");
+    const btnRegenKey = document.getElementById("btnRegenKey");
+    const btnCopyKey = document.getElementById("btnCopyKey");
     const dropzone = document.getElementById("dropzone");
     const fileInput = document.getElementById("fileInput");
     const preview = document.getElementById("preview");
@@ -289,9 +329,116 @@
     const updatedAt = document.getElementById("updatedAt");
 
     let selectedFile = null;
+    let apiKey = "";
 
-    apiKeyEl.value = localStorage.getItem("passport_api_key") || "dev-key-001";
-    apiKeyEl.addEventListener("change", () => localStorage.setItem("passport_api_key", apiKeyEl.value));
+    function showLogin(msg) {
+      loginScreen.classList.remove("hidden");
+      appShell.classList.add("hidden");
+      const err = document.getElementById("loginError");
+      if (msg) {
+        err.textContent = msg;
+        err.style.display = "block";
+      } else {
+        err.style.display = "none";
+      }
+    }
+
+    function showApp() {
+      loginScreen.classList.add("hidden");
+      appShell.classList.remove("hidden");
+    }
+
+    async function apiFetch(url, options = {}) {
+      return fetch(url, { credentials: "include", ...options });
+    }
+
+    async function bootstrap() {
+      try {
+        const res = await apiFetch("/api/admin/me");
+        if (!res.ok) {
+          showLogin();
+          return;
+        }
+        const data = await res.json();
+        apiKey = data.api_key || "";
+        apiKeyDisplay.value = data.api_key_masked || apiKey;
+        apiKeyDisplay.dataset.full = apiKey;
+        showApp();
+        fetchStats();
+      } catch (_) {
+        showLogin("Не удалось подключиться к серверу");
+      }
+    }
+
+    btnLogin.addEventListener("click", async () => {
+      btnLogin.disabled = true;
+      try {
+        const res = await apiFetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: adminPassword.value }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const msg = typeof data.detail === "string" ? data.detail : "Неверный пароль";
+          showLogin(msg);
+          return;
+        }
+        apiKey = data.api_key || "";
+        apiKeyDisplay.value = data.api_key_masked || apiKey;
+        apiKeyDisplay.dataset.full = apiKey;
+        adminPassword.value = "";
+        showApp();
+        fetchStats();
+      } catch (e) {
+        showLogin("Ошибка: " + e.message);
+      } finally {
+        btnLogin.disabled = false;
+      }
+    });
+
+    adminPassword.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") btnLogin.click();
+    });
+
+    btnCopyKey.addEventListener("click", async () => {
+      const full = apiKeyDisplay.dataset.full || apiKey;
+      try {
+        await navigator.clipboard.writeText(full);
+        btnCopyKey.textContent = "Скопировано";
+        setTimeout(() => { btnCopyKey.textContent = "Копировать"; }, 1500);
+      } catch (_) {
+        showError("Не удалось скопировать ключ");
+      }
+    });
+
+    btnRegenKey.addEventListener("click", async () => {
+      if (!confirm("Перегенерировать API-ключ? Старый ключ сразу перестанет работать.")) return;
+      btnRegenKey.disabled = true;
+      try {
+        const res = await apiFetch("/api/admin/regenerate-api-key", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) {
+          showError((data.detail && data.detail.message) || "Не удалось перегенерировать");
+          if (res.status === 401) showLogin();
+          return;
+        }
+        apiKey = data.api_key;
+        apiKeyDisplay.value = data.api_key_masked || apiKey;
+        apiKeyDisplay.dataset.full = apiKey;
+        clearError();
+      } catch (e) {
+        showError("Сеть: " + e.message);
+      } finally {
+        btnRegenKey.disabled = false;
+      }
+    });
+
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      await apiFetch("/api/admin/logout", { method: "POST" });
+      apiKey = "";
+      showLogin();
+    });
 
     dropzone.addEventListener("click", () => fileInput.click());
     dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("dragover"); });
@@ -313,7 +460,8 @@
 
     async function fetchStats() {
       try {
-        const res = await fetch("/api/dashboard/stats");
+        const res = await apiFetch("/api/dashboard/stats");
+        if (res.status === 401) { showLogin(); return; }
         if (!res.ok) return;
         const data = await res.json();
         renderStats(data);
@@ -412,7 +560,8 @@
       try {
         const res = await fetch("/v1/passport/recognize?include_raw=false", {
           method: "POST",
-          headers: { "X-API-Key": apiKeyEl.value.trim() },
+          headers: { "X-API-Key": apiKey },
+          credentials: "include",
           body: form,
         });
         const data = await res.json();
@@ -430,8 +579,8 @@
       document.getElementById("rawJson").classList.toggle("show");
     });
 
-    fetchStats();
-    setInterval(fetchStats, 5000);
+    bootstrap();
+    setInterval(() => { if (!appShell.classList.contains("hidden")) fetchStats(); }, 5000);
   </script>
 </body>
 </html>

@@ -100,18 +100,13 @@ Health: `GET /health`, `GET /ready`, `GET /metrics`, `GET /v1/limits`
 
 ### Web-панель (ручная загрузка + статистика)
 
-После `docker compose up` откройте:
+**https://pass.hermes-support.ru/dashboard**
 
-**http://localhost:8080/dashboard**
+1. Войти паролем администратора (`ADMIN_PASSWORD` в `.env` на сервере)
+2. API-ключ подставляется автоматически — можно копировать или перегенерировать
+3. Загрузить фото паспорта и нажать «Распознать»
 
-- загрузка паспорта drag-and-drop;
-- таблица всех полей с confidence, source, confirmed;
-- live-статистика: очередь, воркеры, запросы, отказы (обновление каждые 5 с);
-- API Key сохраняется в браузере (localStorage).
-
-JSON статистики: `GET /api/dashboard/stats`
-
-Отключить панель: `DASHBOARD_ENABLED=false`
+Панель и статистика доступны только после входа. Внешним клиентам нужен только API-ключ из панели.
 
 ### Свои модели в Docker
 

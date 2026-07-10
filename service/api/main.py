@@ -16,6 +16,7 @@ from service.core.logging_config import setup_logging
 from service.api.routes.recognize import router as recognize_router
 from service.api.routes.system import health_router, tasks_router
 from service.api.routes.dashboard import router as dashboard_router
+from service.api.routes.admin import router as admin_router
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,12 @@ async def lifespan(app: FastAPI):
     q = TaskQueue()
     if q.ping():
         QUEUE_DEPTH.set(q.queue_depth())
+    try:
+        from service.core.admin_store import ensure_admin_api_key
+
+        ensure_admin_api_key()
+    except Exception:
+        logger.warning("Could not initialize admin API key", exc_info=True)
     logger.info("API started")
     yield
 
@@ -65,6 +72,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(tasks_router)
     app.include_router(dashboard_router)
+    app.include_router(admin_router)
 
     @app.get("/", include_in_schema=False)
     async def root():
