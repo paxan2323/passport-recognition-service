@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1 libglib2.0-0 libgomp1 \
+    libgl1 libglib2.0-0 libgomp1 gosu \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt requirements-service.txt ./
@@ -16,12 +16,16 @@ COPY postprocess/ postprocess/
 RUN pip install -r requirements-service.txt
 
 COPY service/ service/
+COPY scripts/worker-entrypoint.sh /usr/local/bin/worker-entrypoint.sh
+RUN chmod +x /usr/local/bin/worker-entrypoint.sh
 
 # Model cache on tmpfs at runtime (writable under read_only rootfs)
 ENV DOCREADER_CACHE=/tmp/docreader-cache
 RUN mkdir -p /tmp/docreader-cache && chmod 777 /tmp/docreader-cache
 
 RUN useradd -m -u 1000 appuser
-USER appuser
+
+ENTRYPOINT ["/usr/local/bin/worker-entrypoint.sh"]
+USER root
 
 CMD ["python", "-m", "service.worker.main"]

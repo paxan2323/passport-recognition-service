@@ -17,11 +17,11 @@ services:
 
   prometheus:
     ports:
-      - "127.0.0.1:9090:9090"
+      - "127.0.0.1:19090:9090"
 
   grafana:
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:13000:3000"
     environment:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
 

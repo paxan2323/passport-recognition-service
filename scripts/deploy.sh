@@ -11,7 +11,6 @@ git fetch origin main
 git reset --hard origin/main
 
 echo "==> Build and start services"
-docker compose $COMPOSE_FILES pull --ignore-buildable 2>/dev/null || true
 docker compose $COMPOSE_FILES up -d --build --remove-orphans
 
 echo "==> Wait for health"
