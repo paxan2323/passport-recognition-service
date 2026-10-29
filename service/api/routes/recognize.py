@@ -87,6 +87,7 @@ def _enqueue_task(
     webhook_url: Optional[str],
     min_quality: str,
     include_raw: bool,
+    main_only: bool = False,
 ) -> str:
     task_id = new_task_id()
     task = TaskPayload(
@@ -97,6 +98,7 @@ def _enqueue_task(
         mode=mode,  # type: ignore[arg-type]
         webhook_url=webhook_url,
         min_quality=min_quality,
+        main_only=main_only,
         include_raw=include_raw,
         enqueued_at=time.time(),
         image_scaled=validated.scaled,
@@ -116,6 +118,7 @@ async def recognize_sync(
     image: UploadFile = File(...),
     include_raw: bool = Query(False),
     min_quality: str = Query("normal"),
+    main_only: bool = Query(False),
     auth: AuthContext = Depends(require_api_key),
     queue: TaskQueue = Depends(get_queue),
     limiter: RateLimiter = Depends(get_rate_limiter),
@@ -145,7 +148,7 @@ async def recognize_sync(
 
     try:
         task_id = _enqueue_task(
-            queue, auth, request_id, validated, "sync", None, min_quality, include_raw
+            queue, auth, request_id, validated, "sync", None, min_quality, include_raw, main_only
         )
     except QueueFullError as exc:
         return _error_response(exc.error, request_id)
@@ -198,6 +201,7 @@ async def recognize_async(
     webhook_url: Optional[str] = Form(None),
     include_raw: bool = Query(False),
     min_quality: str = Query("normal"),
+    main_only: bool = Query(False),
     auth: AuthContext = Depends(require_api_key),
     queue: TaskQueue = Depends(get_queue),
     limiter: RateLimiter = Depends(get_rate_limiter),
@@ -223,7 +227,7 @@ async def recognize_async(
 
     try:
         task_id = _enqueue_task(
-            queue, auth, request_id, validated, "async", webhook_url, min_quality, include_raw
+            queue, auth, request_id, validated, "async", webhook_url, min_quality, include_raw, main_only
         )
     except QueueFullError as exc:
         return _error_response(exc.error, request_id)

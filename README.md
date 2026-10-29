@@ -98,6 +98,11 @@ curl -H "X-API-Key: your-secret-key" \
 
 Health: `GET /health`, `GET /ready`, `GET /metrics`, `GET /v1/limits`
 
+For main passport spreads only, add `?main_only=true` to either recognition
+endpoint. This skips registration-page fallback, so unrelated images are rejected
+without expensive registration OCR. The default mode still supports registration
+pages. The flag is forwarded through the queue to the worker.
+
 ### Web-панель (ручная загрузка + статистика)
 
 **https://pass.hermes-support.ru/dashboard**

@@ -92,7 +92,10 @@ def process_task(
     t0 = time.perf_counter()
     try:
         with ThreadPoolExecutor(max_workers=1) as pool:
-            future = pool.submit(engine.recognize, image, task.min_quality)
+            if task.main_only:
+                future = pool.submit(engine.recognize, image, task.min_quality, main_only=True)
+            else:
+                future = pool.submit(engine.recognize, image, task.min_quality)
             try:
                 outcome: RecognitionOutcome = future.result(timeout=settings.worker_timeout_s)
             except FuturesTimeout:

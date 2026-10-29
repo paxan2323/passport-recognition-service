@@ -53,7 +53,7 @@ class RecognitionEngine(ABC):
         ...
 
     @abstractmethod
-    def recognize(self, image_bytes: bytes, min_quality: str = "normal") -> RecognitionOutcome:
+    def recognize(self, image_bytes: bytes, min_quality: str = "normal", *, main_only: bool = False) -> RecognitionOutcome:
         ...
 
 
@@ -80,7 +80,7 @@ class DocReaderEngine(RecognitionEngine):
     def is_ready(self) -> bool:
         return self._ready and self._reader is not None
 
-    def recognize(self, image_bytes: bytes, min_quality: str = "normal") -> RecognitionOutcome:
+    def recognize(self, image_bytes: bytes, min_quality: str = "normal", *, main_only: bool = False) -> RecognitionOutcome:
         if not self.is_ready():
             raise RuntimeError("Engine not ready")
 
@@ -120,7 +120,7 @@ class DocReaderEngine(RecognitionEngine):
 
         doc = self._pick_passport_doc(page)
         reg_field: Optional[RefinedField] = None
-        if not self._looks_like_main_passport(doc, settings):
+        if not main_only and not self._looks_like_main_passport(doc, settings):
             t_reg = time.perf_counter()
             reg_field = self._try_registration(image)
             timings["registration_ms"] = (time.perf_counter() - t_reg) * 1000
