@@ -111,6 +111,7 @@ class TaskPayload(BaseModel):
     mode: Literal["sync", "async"] = "sync"
     webhook_url: Optional[str] = None
     min_quality: str = "normal"
+    main_only: bool = False
     include_raw: bool = False
     enqueued_at: float = 0.0
     # Препроцессинг на API: downscale до max_image_side_px
