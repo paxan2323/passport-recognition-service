@@ -1,0 +1,43 @@
+# Isolated OCR DEV: separate Redis, queue, models process and localhost API.
+# OCR_REVISION=<dev commit> DOCREADER_MODELS_HOST=/var/lib/docreader/models \
+#   docker compose -p passport-ocr-dev -f docker-compose.dev.yml up -d --build
+services:
+  redis:
+    extends:
+      file: docker-compose.yml
+      service: redis
+    restart: unless-stopped
+  api:
+    extends:
+      file: docker-compose.yml
+      service: api
+    image: passport-ocr-dev-api:${OCR_REVISION:?set OCR_REVISION to the dev commit}
+    build:
+      dockerfile: Dockerfile.runtime
+      args:
+        SOURCE_REVISION: ${OCR_REVISION}
+    command: ["uvicorn", "service.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    labels:
+      org.opencontainers.image.revision: ${OCR_REVISION}
+    environment:
+      PASSPORT_API_KEYS: dev-isolated:dev
+      ADMIN_PASSWORD: ""
+      ADMIN_COOKIE_SECURE: "false"
+    ports:
+      - "127.0.0.1:18081:8000"
+  worker:
+    extends:
+      file: docker-compose.yml
+      service: worker
+    image: passport-ocr-dev-worker:${OCR_REVISION:?set OCR_REVISION to the dev commit}
+    build:
+      dockerfile: Dockerfile.runtime
+      args:
+        SOURCE_REVISION: ${OCR_REVISION}
+    labels:
+      org.opencontainers.image.revision: ${OCR_REVISION}
+    volumes:
+      - /var/lib/docreader/easyocr-en:/tmp/docreader-cache/easyocr-en:ro
+    environment:
+      EASYOCR_MODULE_PATH: /tmp/docreader-cache/easyocr-en
+      EASYOCR_REG_PATH: /tmp/docreader-cache/easyocr-en

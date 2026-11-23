@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
     branches: [main]
 
@@ -36,7 +36,7 @@ jobs:
         run: python tests/test_postprocess.py
 
       - name: Service unit tests
-        run: pytest tests/test_service.py tests/test_main_only.py -v
+        run: pytest tests/test_service.py tests/test_main_only.py tests/test_worker_process.py -v
 
       - name: Service lifecycle tests
         run: pytest tests/test_service_lifecycle.py -v

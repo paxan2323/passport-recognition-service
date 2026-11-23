@@ -1,0 +1,7 @@
+# Reuse the deployed dependency/model runtime; this patch changes no dependencies.
+ARG RUNTIME_BASE=passport-recognition-service-worker
+FROM ${RUNTIME_BASE}
+ARG SOURCE_REVISION
+LABEL org.opencontainers.image.revision=${SOURCE_REVISION}
+COPY service/ /app/service/
+COPY tests/ /app/tests/

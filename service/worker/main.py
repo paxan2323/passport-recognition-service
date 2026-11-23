@@ -8,7 +8,6 @@ import os
 import signal
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 from typing import Any, Optional
 
 import httpx
@@ -30,6 +29,7 @@ from service.core.metrics import (
 from service.core.queue import META_PREFIX, TaskQueue
 from service.core.response_mapper import map_error, map_success
 from service.core.schemas import TaskPayload
+from service.worker.process_engine import ProcessEngine
 
 logger = logging.getLogger(__name__)
 
@@ -91,22 +91,12 @@ def process_task(
 
     t0 = time.perf_counter()
     try:
-        with ThreadPoolExecutor(max_workers=1) as pool:
-            if task.main_only:
-                future = pool.submit(engine.recognize, image, task.min_quality, main_only=True)
-            else:
-                future = pool.submit(engine.recognize, image, task.min_quality)
-            try:
-                outcome: RecognitionOutcome = future.result(timeout=settings.worker_timeout_s)
-            except FuturesTimeout:
-                payload = map_error(
-                    PROCESSING_TIMEOUT.code,
-                    PROCESSING_TIMEOUT.message,
-                    task.request_id,
-                ).model_dump()
-                queue.store_result(task_id, payload)
-                WORKER_TASKS_TOTAL.labels(status="timeout").inc()
-                return
+        outcome: RecognitionOutcome = engine.recognize(image, task.min_quality, main_only=task.main_only)
+    except TimeoutError:
+        payload = map_error(PROCESSING_TIMEOUT.code, PROCESSING_TIMEOUT.message, task.request_id).model_dump()
+        queue.store_result(task_id, payload)
+        WORKER_TASKS_TOTAL.labels(status="timeout").inc()
+        return
     except Exception:
         logger.exception("Worker error task_id=%s", task_id)
         payload = map_error(INTERNAL.code, INTERNAL.message, task.request_id).model_dump()
@@ -161,7 +151,7 @@ def run_worker() -> int:
     logger.info("Worker %s starting", settings.worker_id)
     WORKERS_TOTAL.set(1)
 
-    engine = create_engine()
+    engine = ProcessEngine(settings)
     engine.warmup()
 
     queue = TaskQueue(settings)
@@ -177,6 +167,13 @@ def run_worker() -> int:
     logger.info("Worker ready, listening on %s", settings.queue_key)
 
     while _running:
+        # Recycle before taking another document; finish/store the previous result first.
+        try:
+            engine.warmup()
+        except Exception:
+            logger.exception("OCR child startup failed")
+            time.sleep(1)
+            continue
         try:
             item = queue.client.blpop(settings.queue_key, timeout=2)
         except redis.RedisError as exc:
@@ -198,6 +195,7 @@ def run_worker() -> int:
             WORKERS_BUSY.set(0)
             QUEUE_DEPTH.set(queue.queue_depth())
 
+    engine.close()
     logger.info("Worker stopped")
     return 0
 

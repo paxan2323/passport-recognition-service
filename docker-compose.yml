@@ -62,6 +62,9 @@ services:
       LOG_LEVEL: INFO
       JSON_LOGS: "true"
       WORKER_TIMEOUT_S: "90"
+      WORKER_MAX_TASKS: ${WORKER_MAX_TASKS:-5}
+      WORKER_MEMORY_LIMIT_MB: ${WORKER_MEMORY_LIMIT_MB:-3584}
+      WORKER_STARTUP_TIMEOUT_S: ${WORKER_STARTUP_TIMEOUT_S:-90}
       REGPAGE_WEIGHTS_PATH: /tmp/docreader-cache/models/regpage_obb.pt
     depends_on:
       redis:
