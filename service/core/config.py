@@ -6,6 +6,7 @@ from functools import lru_cache
 from typing import Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 
 class Settings(BaseSettings):
@@ -47,6 +48,9 @@ class Settings(BaseSettings):
     # Worker
     worker_id: str = "worker-1"
     omp_num_threads: int = 4
+    worker_max_tasks: int = Field(default=5, ge=1)
+    worker_memory_limit_mb: int = Field(default=3584, ge=256)
+    worker_startup_timeout_s: float = Field(default=90.0, gt=0)
 
     # Logging
     log_level: str = "INFO"
